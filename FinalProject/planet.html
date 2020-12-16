@@ -1,0 +1,310 @@
+
+<!doctype html>
+<html>
+<head>
+		<meta charset="utf-8" />
+		<title>Planet Project by Emily Thomas</title>
+
+
+	<script src="https://threejs.org/build/three.min.js"></script>
+	<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+	<script src='https://threejs.org/examples/js/libs/dat.gui.min.js'></script>
+	</head>
+	<body>
+		<div id="notes"> Uninhabitable: No Atmosphere leads to extreme temperatures & no water</div>
+	<style>
+		#notes {
+  color: #fff;
+  font-family: "Fira Mono", Monaco, "Andale Mono", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+	font-size: large;
+}
+		</style>
+
+	<script type="text/javascript">
+
+		"use strict";
+	let scene, object, camera, renderer, control, light, ambientLight;
+	let cameraControls;
+	var obj;
+	let total;
+let test;
+
+
+	let WIDTH  = window.innerWidth;
+	let HEIGHT = window.innerHeight;
+
+	init();
+	render();
+
+	function init() {
+		scene = new THREE.Scene();
+		initRenderer();
+		initScene();
+		handleWindowResize();
+		addGui();
+		animate();
+	}
+
+
+	function render() {
+		renderer.render(scene, camera);
+
+	}
+
+
+
+	//GUI -------------------------------------------------------------------------
+	function addGui() {
+		let test =0;
+			 let gui = new dat.GUI();
+
+			 control = {
+				 Terrain:0,
+				 Atmosphere: 0,
+				 Water: 0,
+				 Sun : 0
+			 }
+
+
+
+		var atmo = gui.add(control,'Atmosphere', {Yes: 1, None: 0, Poisunous: 2}).listen();
+		var wat =gui.add(control,'Water', {None:0, Some:1, Half:2, Majority:3}).listen();
+		var terr = gui.add(control,'Terrain', {Normal:0, Gaseous:1, Lava:2}).listen();
+		var son =	gui.add(control,'Sun', {None:1, Far:2, SafeDistance:0, Close:3}).listen();
+
+		atmo.onChange(function(value)
+		{	updatePlanet();			});
+		wat.onChange(function(value)
+		{	updatePlanet();			});
+		terr.onChange(function(value)
+		{	updatePlanet();			});
+		son.onChange(function(value)
+		{	updatePlanet();			});
+
+		 }
+
+//UPDATEPLANET -----------------------------------------------------------------------
+function updatePlanet()
+{ light.visible = true;
+	light.intensity = 1;
+	ambientLight.intensity = 0.2;
+	var atmo = control.Atmosphere;
+	var wat = control.Water;
+	var terr = control.Terrain;
+	var son = control.Sun;
+
+
+//ALL OF THE PLANET SPECIFICATIONS
+if (atmo == 0 && son ==0){object.material.map = new THREE.TextureLoader().load('./rock.png');
+document.getElementById("notes").innerHTML = "Uninhabitable: No atmosphere leads to extreme temperatures & no water";}
+if (atmo == 0 && son ==1){object.material.map = new THREE.TextureLoader().load('./rock.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water due to lack of atmosphere. There is no sun, this leads to extremely cold temperatures.";}
+if (atmo == 0 && son ==2){object.material.map = new THREE.TextureLoader().load('./rock.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water due to lack of atmosphere. The far sun would lead to extremely cold temperatures.";}
+if (atmo == 0 && son ==3){object.material.map = new THREE.TextureLoader().load('./rock.png');
+light.intensity = 1.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water due to a lack of atmosphere. The close sun would lead to extremely hot temperatures.";}
+
+if (atmo == 1 && wat == 0  && son ==0 && terr ==0){object.material.map = new THREE.TextureLoader().load('./mars.png');
+document.getElementById("notes").innerHTML = "Uninhabitable: No water, an extremely dry planet";}
+if (atmo == 1 && wat == 0 && son ==1 && terr ==0){object.material.map = new THREE.TextureLoader().load('./mars.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water & and the lack of a sun makes it extremely cold.";}
+if (atmo == 1 && wat == 0 && son ==2 && terr ==0){object.material.map = new THREE.TextureLoader().load('./mars.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water & and the far sun makes this planet very cold";}
+if (atmo == 1 && (wat == 0 ||wat == 1) && son ==3 && terr ==0){object.material.map = new THREE.TextureLoader().load('./mars.png');
+light.intensity = 1.5;
+ambientLight.intensity = 0.4;
+document.getElementById("notes").innerHTML = "Uninhabitable: No water & the close sun makes this planet extremely hot";}
+
+
+if (atmo == 1 && wat == 1 && son ==0 && terr ==0){object.material.map = new THREE.TextureLoader().load('./dry.png');
+document.getElementById("notes").innerHTML = "Possibly Habitable: Very little water & Moderate to Hot temperatures. Kind of like a desert with a possible oasis";}
+if (atmo == 1 && wat == 1  && son ==1 && terr ==0){object.material.map = new THREE.TextureLoader().load('./colddry.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: Extremely cold due to the lack of a sun, any water avaliable would be frozen";}
+if (atmo == 1 && wat == 1  && son ==2 && terr ==0){object.material.map = new THREE.TextureLoader().load('./dry.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "UNinhabitable: Very Little water & cold temperatures due to a far sun";}
+
+
+if (atmo == 1 && wat == 2 && son ==0 && terr ==0){object.material.map = new THREE.TextureLoader().load('./earthish.png');
+document.getElementById("notes").innerHTML = "Habitable: Perfect Conditions! Plenty of water and moderate temperatures. Most similar to Earth";}
+if (atmo == 1 && wat == 2  && son ==1 &&terr ==0){object.material.map = new THREE.TextureLoader().load('./ice.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: Extremely cold due to the lack of a sun, any water avaliable would be frozen";}
+if (atmo == 1 && wat == 2  && son ==2 && terr ==0){object.material.map = new THREE.TextureLoader().load('./earthish.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Possibly Habitable: Much colder temperatures, but still has things needed for life. Kind of like Earth in an ice age";}
+if (atmo == 1 && wat == 2  && son ==3 && terr ==0){object.material.map = new THREE.TextureLoader().load('./mars.png');
+light.intensity = 1.5;
+ambientLight.intensity = 0.4;
+document.getElementById("notes").innerHTML = "Uninhabitable: Very high temperatures due to the close sun. May make the planet very dried out.";
+}
+
+if (atmo == 1 && wat == 3 && son ==0 && terr ==0){object.material.map = new THREE.TextureLoader().load('./ocean2.png');
+document.getElementById("notes").innerHTML = "Possibly Habitable: Lots of water but little land. Moderate temperatures";}
+if (atmo == 1 && wat == 3  && son ==1 && terr ==0){object.material.map = new THREE.TextureLoader().load('./ice.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: All water would be frozen over. The lack of a sun makes it extremely cold.";}
+if (atmo == 1 && wat == 3  && son ==2 && terr == 0){object.material.map = new THREE.TextureLoader().load('./ocean2.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: Lots of water but little land. Would be very cold due to the far sun.";}
+if (atmo == 1 && wat == 3  && son ==3 && terr == 0){object.material.map = new THREE.TextureLoader().load('./hotsoup.png');
+light.intensity = 1.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: Lots of water but little land. Very high temperatures, it's like a hot soup of life (Like Early Earth)";
+amibientLight.intensity = 0.4;}
+
+
+if (atmo == 2 && son ==0){object.material.map = new THREE.TextureLoader().load('./poison.png');
+document.getElementById("notes").innerHTML = "Uninhabitable: Poisonous atmosphere";}
+if (atmo == 2 &&son ==1) {object.material.map = new THREE.TextureLoader().load('./poison.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: Poisonous atmosphere. The lack of a sun would make it extremely cold, but the atmosphere would remain.";}
+if (atmo == 2 && son ==2){object.material.map = new THREE.TextureLoader().load('./poison.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: Poisonous atmosphere. The far sun would make it cold but it would not affect the atmosphere.";}
+if (atmo == 2 && son ==3){object.material.map = new THREE.TextureLoader().load('./poison.png');
+light.intensity = 1.5;
+amibientLight.intensity = 0.4;
+document.getElementById("notes").innerHTML = "Uninhabitable: Poisonous atmosphere. The close sun would make it extremely hot.";}
+
+if (terr == 1 && son ==0 ){object.material.map = new THREE.TextureLoader().load('./gas2.png');
+document.getElementById("notes").innerHTML = "Uninhabitable: This is a gas planet. Any water that may exist would be in the gas";}
+if (terr == 1 && son ==3 ){ object.material.map = new THREE.TextureLoader().load('./gas2.png');
+light.intensity = 1.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: This is a gas planet. Any water that may exist would be in the gas. This planet is extremely cold";}
+if (terr == 1 && son == 2) {object.material.map = new THREE.TextureLoader().load('./gas3.png');
+light.intensity = 0.5;
+document.getElementById("notes").innerHTML = "Uninhabitable: This is a gas planet. Any water that may exist would be in the gas. This planet is very cold";}
+if (terr == 1 && son == 1) { object.material.map = new THREE.TextureLoader().load('./gas3.png');
+light.visible = false;
+document.getElementById("notes").innerHTML = "Uninhabitable: This is a gas planet. Any water that may exist would be in the gas. This planet is extremely hot";}
+
+if (terr == 2 && (son ==0 || son == 2 || son ==3)){ object.material.map = new THREE.TextureLoader().load('./hot.png');
+ambientLight.intensity = 0.9;
+document.getElementById("notes").innerHTML = "Uninhabitable: HOT! May or may not have an atmosphere. Any water that might exist would be vapor. The sun does not effect the temperature of this planet enough to matter.";}
+if (terr == 2 && son == 1 ) {object.material.map = new THREE.TextureLoader().load('./hot.png');
+light.visible = false;
+ambientLight.intensity = 0.9;
+document.getElementById("notes").innerHTML = "Uninhabitable: HOT! May or may not have an atmosphere. Any water that might exist would be vapor. The lack of a Sun makes it colder but the planet itself is still hot.";}
+
+}
+
+//RENDER -----------------------------------------------------------------------
+	function initRenderer() {
+		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.setSize(WIDTH, HEIGHT);
+		renderer.setClearColor (0x888888, 1);
+		document.body.appendChild(renderer.domElement);
+
+	}
+
+
+//SCENE ----------------------------------------------------------------------
+	function initScene() {
+		initCamera();
+
+		let radius = 2, segments = 32, rings = 32;
+		let geometry = new THREE.SphereBufferGeometry(radius, segments, rings);
+		let sun = new THREE.SphereBufferGeometry(radius, segments, rings);
+		var tex = new THREE.TextureLoader().load('./rock.png');
+		let material = new THREE.MeshPhongMaterial({map:tex});
+		let sunMaterial = new THREE.MeshBasicMaterial(0xffffff);
+		material.shininess = 10;
+
+
+		{ //Star Skybox
+		const loader = new THREE.CubeTextureLoader();
+	  const texture = loader.load([
+	    'stars.png',
+	    'stars.png',
+	    'stars.png',
+	    'stars.png',
+	    'stars.png',
+	    'stars.png',
+	  ]);
+	  scene.background = texture;
+	}
+
+		object = new THREE.Mesh(geometry, material);
+		object.castShadow = true;
+
+		scene.add(object);
+
+		let star = new THREE.Mesh(sun, sunMaterial);
+		star.position.set(40,60,-40);
+		scene.add(star);
+		obj = object;
+
+	ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+	scene.add(ambientLight);
+
+	light = new THREE.PointLight( 0xffffff, 1, 1000 );
+	light.position.set(40,60,-40);
+	light.castShadow = true;
+	light.shadow.camera.far = 50000      // default
+	scene.add(light);
+
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	}
+	//END INITSCENE
+
+
+
+
+//CAMERA ----------------------------------------------------------------------
+	function initCamera() {
+		camera = new THREE.PerspectiveCamera(50, WIDTH / HEIGHT, 1, 10);
+		camera.position.set(10, -3, 0);
+		camera.lookAt(scene.position);
+		camera.far = 100000;
+		cameraControls = new THREE.OrbitControls (
+			camera, renderer.domElement
+		);
+		cameraControls.addEventListener("change",
+			function(){
+				camera.updateProjectionMatrix();
+				render();
+			}
+		);
+	}
+//END CAMERA
+
+
+//RESIZE -------------------------------------------------------------------
+	function handleWindowResize(){
+		window.addEventListener (
+			"resize",
+			function () {
+				WIDTH = window.innerWidth ;
+				HEIGHT = window.innerHeight;
+				renderer.setSize(WIDTH,HEIGHT);
+				camera.aspect = WIDTH/HEIGHT;
+				camera.updateProjectionMatrix();
+				render();
+			}
+		);
+	}
+
+function animate() {
+	requestAnimationFrame(animate);
+	obj.rotation.y += 0.005;
+	renderer.render(scene, camera);
+}
+
+
+
+
+	</script>
+
+</body>
+
+</html>
