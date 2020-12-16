@@ -1,0 +1,2 @@
+# Graphics-Final-Project
+The goal of this project was to make a way for a user to change attributes about a planet. The attributes change the habitability which is then reflected to the user in the bottom left with notes about why it is or is not habitable. Supposed to be more for something like a video game, so facts may not be entirely realistic. I am classifying habitability on whether a human could live on that planet.
